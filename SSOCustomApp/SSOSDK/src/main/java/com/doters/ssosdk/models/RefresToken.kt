@@ -1,4 +1,4 @@
-package SSO_SDK
+package com.doters.ssosdk.models
 
 data class RefresToken(
     val access_token: String,

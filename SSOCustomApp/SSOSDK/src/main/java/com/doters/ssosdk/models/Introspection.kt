@@ -1,4 +1,4 @@
-package com.doters.ssosdk
+package com.doters.ssosdk.models
 
 data class Introspection(
     val active: Boolean,

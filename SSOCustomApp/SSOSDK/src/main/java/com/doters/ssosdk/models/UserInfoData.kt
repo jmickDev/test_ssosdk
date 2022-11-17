@@ -1,7 +1,7 @@
-package com.doters.ssosdk
+package com.doters.ssosdk.models
 
-data class UserInfo(
-    val sub: String,
+data class UserInfoData(
+    val customerId: String,
     val email: String,
     val first: String,
     val last: String,

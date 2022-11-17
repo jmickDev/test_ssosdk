@@ -1,12 +1,15 @@
 package com.example.ssocustomapp
 
+import android.R
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
+import android.widget.TextView
+import androidx.fragment.app.Fragment
 import com.example.ssocustomapp.databinding.FragmentFirstBinding
+
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
