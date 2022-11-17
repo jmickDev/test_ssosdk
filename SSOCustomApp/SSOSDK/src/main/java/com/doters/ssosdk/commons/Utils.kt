@@ -51,7 +51,7 @@ class Utils {
                     state = sanitizer.getValue("state")
                 }
 
-                val response: LoginData = LoginData(accessToken, expiresIn.toInt(), idToken, refreshToken, scope, tokenType, state, "", "")
+                response = LoginData(accessToken, expiresIn.toInt(), idToken, refreshToken, scope, tokenType, state, "", "")
             } catch (e: Exception) {
                 response = LoginData("", 0, "", "", "", "", "", "errorException", e.toString())
             }

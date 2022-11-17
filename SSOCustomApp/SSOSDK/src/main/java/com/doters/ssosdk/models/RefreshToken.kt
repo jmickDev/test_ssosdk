@@ -1,6 +1,6 @@
 package com.doters.ssosdk.models
 
-data class RefresToken(
+data class RefreshToken(
     val access_token: String,
     val expires_in: Int,
     val id_token: String,

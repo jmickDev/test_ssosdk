@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import mu.KotlinLogging
 
 import com.doters.ssosdk.models.Introspection
-import com.doters.ssosdk.models.RefresToken
+import com.doters.ssosdk.models.RefreshToken
 import com.doters.ssosdk.models.UserInfoData
 import com.doters.ssosdk.restServices.RetrofitHelper
 import com.doters.ssosdk.restServices.SSOAPI
@@ -57,7 +57,7 @@ class SSOSDK constructor(scheme: String, url: String, APIurl: String, language: 
     }
 
     interface RefreshTokenCallback {
-        fun processFinish(success: Boolean, data: RefresToken?)
+        fun processFinish(success: Boolean, data: RefreshToken?)
     }
 
     // Metodo de SDK para login
@@ -144,7 +144,9 @@ class SSOSDK constructor(scheme: String, url: String, APIurl: String, language: 
     }
 
     fun parseURI(uri: Uri): LoginData?{
-        return sdkUtils.parseURI(uri)
+        val sessionData: LoginData = sdkUtils.parseURI(uri)
+
+        return sessionData
     }
 
     // Funcion proncipal con logica para carga de customTabs

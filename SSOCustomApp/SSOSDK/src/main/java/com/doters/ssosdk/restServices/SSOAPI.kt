@@ -1,7 +1,7 @@
 package com.doters.ssosdk.restServices
 
 import com.doters.ssosdk.models.Introspection
-import com.doters.ssosdk.models.RefresToken
+import com.doters.ssosdk.models.RefreshToken
 import com.doters.ssosdk.models.UserInfoData
 import retrofit2.Response
 import retrofit2.http.*
@@ -16,5 +16,5 @@ interface SSOAPI {
 
     @FormUrlEncoded
     @POST("token")
-    suspend fun refreshToken(@HeaderMap headers: Map<String, String>, @Field("refresh_token") authToken: String, @Field("grant_type") tokenTypeHint: String) : Response<RefresToken>
+    suspend fun refreshToken(@HeaderMap headers: Map<String, String>, @Field("refresh_token") authToken: String, @Field("grant_type") tokenTypeHint: String) : Response<RefreshToken>
 }

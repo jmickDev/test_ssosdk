@@ -1,9 +1,10 @@
 package com.example.ssocustomapp
 
-import com.doters.ssosdk.Introspection
-import com.doters.ssosdk.RefresToken
+import com.doters.ssosdk.models.Introspection
+import com.doters.ssosdk.models.RefresToken
+import com.doters.ssosdk.models.UserInfoData
+import com.doters.ssosdk.models.LoginData
 import com.doters.ssosdk.SSOSDK
-import com.doters.ssosdk.UserInfo
 
 import android.net.Uri
 import android.os.Build
@@ -28,20 +29,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     // params de urls de login y logout
-    private val redirectUri: String = "dosso://"
+    private val scheme: String = "dosso://"
+    private val url: String = "https://auth-test.doters.io"
+    private val APIurl: String = "https://auth-api-gw-test.doters.io"
     private val clientId: String = "viva-web"
     private val clientSecret: String = "GlMTbnwjRA"
     private val language: String = "es-MX"
     private val state: String = "A245FG"
 
-    private var ssosdk = SSOSDK(clientId, clientSecret)
+    private var ssosdk = SSOSDK(scheme, url, APIurl, language, clientId, clientSecret, state)
 
-    // URL para carga del SSO Login
-    private var SSO_url = "https://auth-test.doters.io/?clientId="+clientId+"&clientSecret="+clientSecret+"&language="+language+"&redirectUri="+redirectUri+"&state="+state
-    // URL para carga del SSO Logout
-    private var SSO_url_logout = "https://auth-api-gw-test.doters.io/v1/logout?post_logout_redirect_uri="+redirectUri+"logout&client_id="+clientId
-    // dosso.solemti.net
-    var parsedlData: Map<String, String>? = null
+    var parsedlData: LoginData = LoginData()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,11 +56,11 @@ class MainActivity : AppCompatActivity() {
 
         // Aqui se espera recibir los query params del redirecturi despues del login
         val dlData: Uri? = intent.data
-        parsedlData = ssosdk.parseURI(dlData)
+        if(dlData != null) parsedlData = ssosdk.parseURI(dlData)!!
 
         binding.root.findViewById<TextView>(R.id.callback_response).movementMethod = ScrollingMovementMethod()
 
-        if(!parsedlData.isNullOrEmpty()) {
+        if(parsedlData != null) {
             binding.root.findViewById<Button>(R.id.button_logout).isEnabled = true
             binding.root.findViewById<Button>(R.id.button_logout).isClickable = true
 
@@ -80,21 +78,21 @@ class MainActivity : AppCompatActivity() {
 
         // Handler del botón login
         binding.root.findViewById<Button>(R.id.button_login).setOnClickListener {
-            ssosdk.loginSSO(SSO_url, applicationContext)
+            ssosdk.signIn(applicationContext)
         }
 
         // Handler del botón logout
         binding.root.findViewById<Button>(R.id.button_logout).setOnClickListener {
-            ssosdk.logoutSSO(SSO_url_logout, applicationContext)
+            ssosdk.logOut(applicationContext)
         }
 
         // Handler del botón getuserInfo
         binding.root.findViewById<Button>(R.id.userInfo_btn).setOnClickListener {
-            val authToken: String? = this.parsedlData!!.get("access_token")
+            val accessToken: String? = this.parsedlData.access_token
 
-            if (authToken != null) {
-                ssosdk.getUserInfo(authToken, object : SSOSDK.UserInfoCallback {
-                    override fun processFinish(success: Boolean, data: UserInfo?) {
+            if (accessToken != null) {
+                ssosdk.UserInfo(accessToken, object : SSOSDK.UserInfoCallback {
+                    override fun processFinish(success: Boolean, data: UserInfoData?) {
                         if(success) {
                             val responseStr = data.toString()
                             binding.root.findViewById<TextView>(R.id.callback_response).setText(responseStr)
@@ -108,10 +106,10 @@ class MainActivity : AppCompatActivity() {
 
         // Handler del botón VerifyToken
         binding.root.findViewById<Button>(R.id.verify_btn).setOnClickListener {
-            val authToken: String? = this.parsedlData!!.get("access_token")
+            val accessToken: String? = this.parsedlData.access_token
 
-            if (authToken != null) {
-                ssosdk.verifyToken(authToken, object : SSOSDK.IntrospectionCallback {
+            if (accessToken != null) {
+                ssosdk.TokenIntrospection(accessToken, object : SSOSDK.IntrospectionCallback {
                     override fun processFinish(success: Boolean, data: Introspection?) {
                         if(success) {
                             val responseStr = data.toString()
@@ -126,10 +124,10 @@ class MainActivity : AppCompatActivity() {
 
         // Handler del botón refreshToken
         binding.root.findViewById<Button>(R.id.refresh_btn).setOnClickListener {
-            val refreshToken: String? = this.parsedlData!!.get("refresh_token")
+            val refreshToken: String? = this.parsedlData.refresh_token
 
             if (refreshToken != null) {
-                ssosdk.refreshToken(refreshToken, object : SSOSDK.RefreshTokenCallback {
+                ssosdk.RefreshToken(refreshToken, object : SSOSDK.RefreshTokenCallback {
                     override fun processFinish(success: Boolean, data: RefresToken?) {
                         if(success) {
                             val responseStr = data.toString()

@@ -44,7 +44,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0'
 
-    implementation 'com.github.jmickDev:test_ssosdk:1.0.4'
+    implementation 'com.github.jmickDev:test_ssosdk:1.0.6'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
