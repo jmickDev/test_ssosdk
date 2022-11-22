@@ -93,11 +93,11 @@ class MainActivity : AppCompatActivity() {
 
         // Handler del botón getuserInfo
         binding.root.findViewById<Button>(R.id.userInfo_btn).setOnClickListener {
-            val accessToken: String? = this.parsedlData.access_token
+            val accessToken: String? = this.parsedlData.accessToken
 
             if (accessToken != null) {
                 switchSpinner(true)
-                ssosdk.UserInfo(accessToken, object : SSOSDK.UserInfoCallback {
+                ssosdk.userInfo(accessToken, object : SSOSDK.UserInfoCallback {
                     override fun processFinish(success: Boolean, data: UserInfoData?) {
                         switchSpinner(false)
                         if(success) {
@@ -113,11 +113,11 @@ class MainActivity : AppCompatActivity() {
 
         // Handler del botón VerifyToken
         binding.root.findViewById<Button>(R.id.verify_btn).setOnClickListener {
-            val accessToken: String? = this.parsedlData.access_token
+            val accessToken: String? = this.parsedlData.accessToken
 
             if (accessToken != null) {
                 switchSpinner(true)
-                ssosdk.TokenIntrospection(accessToken, object : SSOSDK.IntrospectionCallback {
+                ssosdk.tokenIntrospection(accessToken, object : SSOSDK.IntrospectionCallback {
                     override fun processFinish(success: Boolean, data: Introspection?) {
                         switchSpinner(false)
                         if(success) {
@@ -133,11 +133,11 @@ class MainActivity : AppCompatActivity() {
 
         // Handler del botón refreshToken
         binding.root.findViewById<Button>(R.id.refresh_btn).setOnClickListener {
-            val refreshToken: String? = this.parsedlData.refresh_token
+            val refreshToken: String? = this.parsedlData.refreshToken
 
             if (refreshToken != null) {
                 switchSpinner(true)
-                ssosdk.RefreshToken(refreshToken, object : SSOSDK.RefreshTokenCallback {
+                ssosdk.refreshToken(refreshToken, object : SSOSDK.RefreshTokenCallback {
                     override fun processFinish(success: Boolean, data: RefreshToken?) {
                         switchSpinner(false)
                         if(success) {

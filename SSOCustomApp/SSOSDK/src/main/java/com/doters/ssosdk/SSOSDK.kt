@@ -142,11 +142,11 @@ class SSOSDK constructor(scheme: String, url: String, apiUrl: String, language: 
                 // Checking the results
                 if(response.isSuccessful) {
                     val responseBody = response.body()
-                    val subResponse: Sub = Sub(responseBody?.sub?.accountId ?: "",
-                        responseBody?.sub?.user ?: ""
-                    )
+                    //val subResponse: Sub = Sub(responseBody?.sub?.accountId ?: "",
+                    //    responseBody?.sub?.user ?: ""
+                    //)
                     val tokenIntrospectionResponse: Introspection = Introspection(responseBody?.active ?: false,
-                        subResponse,
+                        responseBody?.sub ?: "",
                         responseBody?.client_id ?: "", responseBody?.exp ?: 0, responseBody?.iat ?: 0,
                         responseBody?.iss ?: "", responseBody?.scope ?: "",
                         responseBody?.token_type ?: ""
