@@ -1,11 +1,11 @@
-package com.doters.ssosdk.restServices
+package com.doters.ssosdk.rest
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitHelper {
-    fun getInstance(APIurl: String): Retrofit {
-        val baseUrl: String = APIurl+"/v1/"
+    fun getInstance(apiUrl: String): Retrofit {
+        val baseUrl = "$apiUrl/v1/"
 
         return Retrofit.Builder().baseUrl(baseUrl)
             //.addConverterFactory(ScalarsConverterFactory.create())

@@ -8,34 +8,32 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
+import com.doters.ssosdk.models.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
 
-import com.doters.ssosdk.models.Introspection
-import com.doters.ssosdk.models.RefreshToken
-import com.doters.ssosdk.models.UserInfoData
-import com.doters.ssosdk.restServices.RetrofitHelper
-import com.doters.ssosdk.restServices.SSOAPI
-import com.doters.ssosdk.commons.Utils
-import com.doters.ssosdk.models.LoginData
+import com.doters.ssosdk.rest.RetrofitHelper
+import com.doters.ssosdk.rest.SSOAPI
+import com.doters.ssosdk.utils.Utils
 
-class SSOSDK constructor(scheme: String, url: String, APIurl: String, language: String, clientId: String, clientSecret: String,  state: String) : AppCompatActivity() {
+class SSOSDK constructor(scheme: String, url: String, apiUrl: String, language: String, clientId: String, clientSecret: String,  state: String) : AppCompatActivity() {
 
     private val logger = KotlinLogging.logger {}
 
-    private val _scheme: String = scheme
-    private val _url: String = url
-    private val _APIurl: String = APIurl
-    private val _language: String = language
-    private val _clientId: String = clientId
-    private val _clientSecret: String = clientSecret
-    private val _state: String = state
+    private val schemeInit: String = scheme
+    private val urlInit: String = url
+    private val apiUrlInit: String = apiUrl
+    private val languageInit: String = language
+    private val clientIdInit: String = clientId
+    private val clientSecretInit: String = clientSecret
+    private val stateInit: String = state
 
     // URL para carga del SSO Login
-    private var SSO_url = _url+"/?clientId="+_clientId+"&clientSecret="+_clientSecret+"&language="+_language+"&redirectUri="+_scheme+"&state="+_state
+    private var SSO_url =
+        "$urlInit/?clientId=$clientIdInit&clientSecret=$clientSecretInit&language=$languageInit&redirectUri=$schemeInit&state=$stateInit"
     // URL para carga del SSO Logout
-    private var SSO_url_logout = _APIurl+"/v1/logout?post_logout_redirect_uri="+_scheme+"logout&client_id="+_clientId
+    private var SSO_url_logout = apiUrlInit+"/v1/logout?post_logout_redirect_uri="+schemeInit+"logout&client_id="+clientIdInit
 
     private val sdkUtils: Utils = Utils()
 
@@ -62,25 +60,30 @@ class SSOSDK constructor(scheme: String, url: String, APIurl: String, language: 
 
     // Metodo de SDK para login
     fun signIn(context: Context){
-        logger.info { "Opening the doters sso to do the LogIn" }
+        logger.info { "Starting doters sso login" }
         loadSSO(this.SSO_url, context);
     }
 
     // Metodo de SDK para login
     fun logOut(context: Context){
-        logger.info { "Opening the doters sso to do the LogOut" }
+        logger.info { "Starting doters sso logout" }
         loadSSO(this.SSO_url_logout, context);
     }
 
-    fun UserInfo(accessToken: String, callback: UserInfoCallback) {
-        val SSOApi = RetrofitHelper.getInstance(this._APIurl).create(SSOAPI::class.java)
+    fun userInfo(accessToken: String, callback: UserInfoCallback) {
+        val SSOApi = RetrofitHelper.getInstance(this.apiUrlInit).create(SSOAPI::class.java)
 
         GlobalScope.launch {
             val response = SSOApi.getUserInfo("Bearer " + accessToken)
             if (response != null) {
                 // Checking the results
                 if(response.isSuccessful) {
-                    callback.processFinish(true, response.body())
+                    val responseBody: UserInfoRequest? = response.body()
+                    val userInfoResponse: UserInfoData = UserInfoData(responseBody?.sub ?: "",
+                        responseBody?.email ?: "",
+                        responseBody?.first ?: "", responseBody?.last ?: "", responseBody?.title ?: ""
+                    )
+                    callback.processFinish(true, userInfoResponse)
                 }else {
                     logger.error { "Request to get user info failed, " + (response.errorBody()?.string() ?: "without error info")}
                     callback.processFinish(false, null)
@@ -93,18 +96,25 @@ class SSOSDK constructor(scheme: String, url: String, APIurl: String, language: 
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun RefreshToken(refreshToken: String, callback: RefreshTokenCallback) {
-        val basicToken: String = sdkUtils.generateBasicToken(this._clientId, this._clientSecret)
+    fun refreshToken(refreshToken: String, callback: RefreshTokenCallback) {
+        val basicToken: String = sdkUtils.generateBasicToken(this.clientIdInit, this.clientSecretInit)
         val headers: Map<String, String> = mapOf("Authorization" to "Basic " + basicToken, "Content-Type" to "application/x-www-form-urlencoded")
 
-        val SSOApi = RetrofitHelper.getInstance(this._APIurl).create(SSOAPI::class.java)
+        val SSOApi = RetrofitHelper.getInstance(this.apiUrlInit).create(SSOAPI::class.java)
 
         GlobalScope.launch {
             val response = SSOApi.refreshToken(headers, refreshToken, "refresh_token")
             if (response != null) {
                 // Checking the results
                 if(response.isSuccessful) {
-                    callback.processFinish(true, response.body())
+                    val responseBody: RefreshTokenRequest? = response.body()
+                    val refreshTokenResponse: RefreshToken = RefreshToken(responseBody?.access_token ?: "",
+                        responseBody?.expires_in ?: 0,
+                        responseBody?.id_token ?: "", responseBody?.refresh_token ?: "", responseBody?.scope ?: "",
+                        responseBody?.token_type ?: ""
+                    )
+
+                    callback.processFinish(true, refreshTokenResponse)
                 } else {
                     logger.error { "Request to refresh token failed, " + (response.errorBody()?.string() ?: "without error info")}
                     callback.processFinish(false, null)
@@ -117,21 +127,31 @@ class SSOSDK constructor(scheme: String, url: String, APIurl: String, language: 
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun TokenIntrospection(accessToken: String, callback: IntrospectionCallback) {
-        val basicToken: String = sdkUtils.generateBasicToken(this._clientId, this._clientSecret)
+    fun tokenIntrospection(accessToken: String, callback: IntrospectionCallback) {
+        val basicToken: String = sdkUtils.generateBasicToken(this.clientIdInit, this.clientSecretInit)
         val headers: Map<String, String> = mapOf(
             "Authorization" to "Basic " + basicToken,
             "Content-Type" to "application/x-www-form-urlencoded"
         )
 
-        val SSOApi = RetrofitHelper.getInstance(this._APIurl).create(SSOAPI::class.java)
+        val SSOApi = RetrofitHelper.getInstance(this.apiUrlInit).create(SSOAPI::class.java)
 
         GlobalScope.launch {
             val response = SSOApi.tokenintrospection(headers, accessToken, "access_token")
            if (response != null) {
                 // Checking the results
                 if(response.isSuccessful) {
-                    callback.processFinish(true, response.body())
+                    val responseBody = response.body()
+                    val subResponse: Sub = Sub(responseBody?.sub?.accountId ?: "",
+                        responseBody?.sub?.user ?: ""
+                    )
+                    val tokenIntrospectionResponse: Introspection = Introspection(responseBody?.active ?: false,
+                        subResponse,
+                        responseBody?.client_id ?: "", responseBody?.exp ?: 0, responseBody?.iat ?: 0,
+                        responseBody?.iss ?: "", responseBody?.scope ?: "",
+                        responseBody?.token_type ?: ""
+                    )
+                    callback.processFinish(true, tokenIntrospectionResponse)
                 }else {
                     logger.error { "Request to verify token failed, " + (response.errorBody()?.string() ?: "without error info")}
                     callback.processFinish(false, null)
@@ -144,9 +164,7 @@ class SSOSDK constructor(scheme: String, url: String, APIurl: String, language: 
     }
 
     fun parseURI(uri: Uri): LoginData?{
-        val sessionData: LoginData = sdkUtils.parseURI(uri)
-
-        return sessionData
+        return sdkUtils.parseURI(uri)
     }
 
     // Funcion proncipal con logica para carga de customTabs

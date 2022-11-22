@@ -1,7 +1,7 @@
 package com.example.ssocustomapp
 
 import com.doters.ssosdk.models.Introspection
-import com.doters.ssosdk.models.RefresToken
+import com.doters.ssosdk.models.RefreshToken
 import com.doters.ssosdk.models.UserInfoData
 import com.doters.ssosdk.models.LoginData
 import com.doters.ssosdk.SSOSDK
@@ -12,10 +12,13 @@ import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintSet.VISIBLE
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -54,6 +57,8 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        switchSpinner(false)
+
         // Aqui se espera recibir los query params del redirecturi despues del login
         val dlData: Uri? = intent.data
         if(dlData != null) parsedlData = ssosdk.parseURI(dlData)!!
@@ -91,8 +96,10 @@ class MainActivity : AppCompatActivity() {
             val accessToken: String? = this.parsedlData.access_token
 
             if (accessToken != null) {
+                switchSpinner(true)
                 ssosdk.UserInfo(accessToken, object : SSOSDK.UserInfoCallback {
                     override fun processFinish(success: Boolean, data: UserInfoData?) {
+                        switchSpinner(false)
                         if(success) {
                             val responseStr = data.toString()
                             binding.root.findViewById<TextView>(R.id.callback_response).setText(responseStr)
@@ -109,8 +116,10 @@ class MainActivity : AppCompatActivity() {
             val accessToken: String? = this.parsedlData.access_token
 
             if (accessToken != null) {
+                switchSpinner(true)
                 ssosdk.TokenIntrospection(accessToken, object : SSOSDK.IntrospectionCallback {
                     override fun processFinish(success: Boolean, data: Introspection?) {
+                        switchSpinner(false)
                         if(success) {
                             val responseStr = data.toString()
                             binding.root.findViewById<TextView>(R.id.callback_response).setText(responseStr)
@@ -127,8 +136,10 @@ class MainActivity : AppCompatActivity() {
             val refreshToken: String? = this.parsedlData.refresh_token
 
             if (refreshToken != null) {
+                switchSpinner(true)
                 ssosdk.RefreshToken(refreshToken, object : SSOSDK.RefreshTokenCallback {
-                    override fun processFinish(success: Boolean, data: RefresToken?) {
+                    override fun processFinish(success: Boolean, data: RefreshToken?) {
+                        switchSpinner(false)
                         if(success) {
                             val responseStr = data.toString()
                             binding.root.findViewById<TextView>(R.id.callback_response).setText(responseStr)
@@ -162,5 +173,9 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
+    }
+
+    fun switchSpinner(visible: Boolean){
+        binding.root.findViewById<ProgressBar>(R.id.progressBar).visibility = if(visible) View.VISIBLE else View.INVISIBLE
     }
 }

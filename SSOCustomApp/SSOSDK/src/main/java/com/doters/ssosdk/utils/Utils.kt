@@ -1,4 +1,4 @@
-package com.doters.ssosdk.commons
+package com.doters.ssosdk.utils
 
 import android.net.Uri
 import android.net.UrlQuerySanitizer
@@ -13,13 +13,13 @@ class Utils {
     private val sanitizer: UrlQuerySanitizer = UrlQuerySanitizer()
 
     // Metodo para parsear queryParams de URI recibida por el deepLink
-    fun parseURI(URI: Uri?): LoginData {
-        var response: LoginData = LoginData()
+    fun parseURI(uri: Uri?): LoginData {
+        var response = LoginData()
 
-        if(URI != null) {
+        if(uri != null) {
             try {
                 sanitizer.setAllowUnregisteredParamaters(true);
-                sanitizer.parseUrl(URI.toString());
+                sanitizer.parseUrl(uri.toString());
 
                 var accessToken: String = ""
                 var expiresIn: String = ""

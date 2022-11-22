@@ -1,12 +1,12 @@
 package com.doters.ssosdk.models
 
 data class LoginData(
-    val access_token:String,
-    val expires_in:Int,
-    val id_token:String,
-    val refresh_token:String,
+    val accessToken:String,
+    val expiresIn:Int,
+    val idToken:String,
+    val refreshToken:String,
     val scope:String,
-    val token_type:String,
+    val tokenType:String,
     val state:String,
     val error:String,
     val errorDescription:String
