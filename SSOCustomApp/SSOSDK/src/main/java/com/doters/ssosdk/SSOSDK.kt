@@ -144,7 +144,6 @@ class SSOSDK constructor(scheme: String, url: String, apiUrl: String, language: 
                 if(response.isSuccessful) {
                     val responseBody = response.body()
                     val subData: JSONObject = JSONObject(responseBody!!.sub)
-                    subData.get("")
                     val subResponse: Sub = Sub(
                         subData.get("accountId") as String, (subData.get("user") ?: "") as String
                     )
