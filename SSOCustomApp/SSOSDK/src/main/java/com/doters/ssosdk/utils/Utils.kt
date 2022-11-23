@@ -22,7 +22,7 @@ class Utils {
                 sanitizer.parseUrl(uri.toString());
 
                 var accessToken: String = ""
-                var expiresIn: String = ""
+                var expiresIn: String = "0"
                 var idToken: String = ""
                 var refreshToken: String = ""
                 var scope: String = ""

@@ -16,6 +16,7 @@ import mu.KotlinLogging
 import com.doters.ssosdk.rest.RetrofitHelper
 import com.doters.ssosdk.rest.SSOAPI
 import com.doters.ssosdk.utils.Utils
+import org.json.JSONObject
 
 class SSOSDK constructor(scheme: String, url: String, apiUrl: String, language: String, clientId: String, clientSecret: String,  state: String) : AppCompatActivity() {
 
@@ -142,11 +143,13 @@ class SSOSDK constructor(scheme: String, url: String, apiUrl: String, language: 
                 // Checking the results
                 if(response.isSuccessful) {
                     val responseBody = response.body()
-                    //val subResponse: Sub = Sub(responseBody?.sub?.accountId ?: "",
-                    //    responseBody?.sub?.user ?: ""
-                    //)
+                    val subData: JSONObject = JSONObject(responseBody!!.sub)
+                    subData.get("")
+                    val subResponse: Sub = Sub(
+                        subData.get("accountId") as String, (subData.get("user") ?: "") as String
+                    )
                     val tokenIntrospectionResponse: Introspection = Introspection(responseBody?.active ?: false,
-                        responseBody?.sub ?: "",
+                        subResponse,
                         responseBody?.client_id ?: "", responseBody?.exp ?: 0, responseBody?.iat ?: 0,
                         responseBody?.iss ?: "", responseBody?.scope ?: "",
                         responseBody?.token_type ?: ""
