@@ -1,6 +1,6 @@
 package com.doters.ssosdk.models
 
-data class Sub(
+data class SubData(
     val customerId: String,
     val user: String,
 ) {

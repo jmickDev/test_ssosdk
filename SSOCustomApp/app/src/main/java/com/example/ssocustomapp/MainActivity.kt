@@ -1,10 +1,10 @@
 package com.example.ssocustomapp
 
-import com.doters.ssosdk.models.Introspection
-import com.doters.ssosdk.models.RefreshToken
-import com.doters.ssosdk.models.UserInfoData
-import com.doters.ssosdk.models.LoginData
-import com.doters.ssosdk.SSOSDK
+import com.doters.ssosdk.models.Introspection // Modelo de datos de la Introspección (Verificación de token)
+import com.doters.ssosdk.models.RefreshToken // Modelo de datos del refresh token
+import com.doters.ssosdk.models.UserInfoData // Modelo de datos de la información de usuario
+import com.doters.ssosdk.models.LoginData // Modelo de datos de los datos de respuesta del login
+import com.doters.ssosdk.SSOSDK // Clase para instanciar el SDK del SSO
 
 import android.net.Uri
 import android.os.Build
@@ -18,7 +18,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintSet.VISIBLE
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -31,18 +30,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
 
-    // params de urls de login y logout
-    private val scheme: String = "dosso://"
-    private val url: String = "https://auth-test.doters.io"
-    private val APIurl: String = "https://auth-api-gw-test.doters.io"
-    private val clientId: String = "viva-web"
-    private val clientSecret: String = "GlMTbnwjRA"
-    private val language: String = "es-MX"
-    private val state: String = "A245FG"
+    // params de urls de login y logout (información solo de prueba)
+    private val scheme: String = "dosso://" // Scheme con el que esta identificada la app
+    private val url: String = "https://auth-test.doters.io" // URL de cliente web del SSO
+    private val apiUrl: String = "https://auth-api-gw-test.doters.io" // Host de API para hacer logout y consumir servicios de userInfo, introspection y refreshToken
+    private val clientId: String = "viva-web" // Client Id para identificar el partner
+    private val clientSecret: String = "GlMTbnwjRA" // Client Secret necesario para hacer el login
+    private val language: String = "es-MX" // Codigo de lenguaje a mostrar en la web app del SSO
+    private val state: String = "A245FG" // State necesario para hacer el login
 
-    private var ssosdk = SSOSDK(scheme, url, APIurl, language, clientId, clientSecret, state)
+    private var ssosdk = SSOSDK(scheme, url, apiUrl, language, clientId, clientSecret, state) // Instanciación de SDK del SSO
 
-    var parsedlData: LoginData = LoginData()
+    var parsedlData: LoginData = LoginData() // Inicializacion de variable local donde se aloja la información recibida al hacer el login
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +60,7 @@ class MainActivity : AppCompatActivity() {
 
         // Aqui se espera recibir los query params del redirecturi despues del login
         val dlData: Uri? = intent.data
-        if(dlData != null) parsedlData = ssosdk.parseURI(dlData)!!
+        if(dlData != null) parsedlData = ssosdk.parseURI(dlData)!! // Método parseURI para obtener la información de inicio de sesión
 
         binding.root.findViewById<TextView>(R.id.callback_response).movementMethod = ScrollingMovementMethod()
 
@@ -83,12 +82,12 @@ class MainActivity : AppCompatActivity() {
 
         // Handler del botón login
         binding.root.findViewById<Button>(R.id.button_login).setOnClickListener {
-            ssosdk.signIn(applicationContext)
+            ssosdk.signIn(applicationContext) // Inicia carga de SSO para el login
         }
 
         // Handler del botón logout
         binding.root.findViewById<Button>(R.id.button_logout).setOnClickListener {
-            ssosdk.logOut(applicationContext)
+            ssosdk.logOut(applicationContext) // Realiza el logout
         }
 
         // Handler del botón getuserInfo
@@ -97,7 +96,18 @@ class MainActivity : AppCompatActivity() {
 
             if (accessToken != null) {
                 switchSpinner(true)
+
+                // Método userInfo obtiene la información del usuario logueado
+                /*
+                * accessToken: AccessToken devuelto despues del login
+                * callback: callback instanciado de SSOSDK.UserInfoCallback
+                */
                 ssosdk.userInfo(accessToken, object : SSOSDK.UserInfoCallback {
+                    // Se debe sobre escribir la función processFinish para recibir respuesta del método userInfo
+                    /*
+                    * success: bandera boolean que indica si fue exitosa o no la respuesta del método
+                    * data: Información del usuario, puede ser null
+                    */
                     override fun processFinish(success: Boolean, data: UserInfoData?) {
                         switchSpinner(false)
                         if(success) {
@@ -117,7 +127,19 @@ class MainActivity : AppCompatActivity() {
 
             if (accessToken != null) {
                 switchSpinner(true)
+
+                // Método tokenIntrospection para validar estatus del token
+                /*
+                * accessToken: AccessToken devuelto despues del login
+                * callback: callback instanciado de SSOSDK.IntrospectionCallback
+                */
                 ssosdk.tokenIntrospection(accessToken, object : SSOSDK.IntrospectionCallback {
+
+                    // Se debe sobre escribir la función processFinish para recibir respuesta del método tokenIntrospection
+                    /*
+                    * success: bandera boolean que indica si fue exitosa o no la respuesta del método
+                    * data: Información del estatus del token, puede ser null
+                    */
                     override fun processFinish(success: Boolean, data: Introspection?) {
                         switchSpinner(false)
                         if(success) {
@@ -137,7 +159,18 @@ class MainActivity : AppCompatActivity() {
 
             if (refreshToken != null) {
                 switchSpinner(true)
+
+                // Método refreshToken para actualizar token
+                /*
+                * refreshToken: refreshToken devuelto despues del login
+                * callback: callback instanciado de SSOSDK.RefreshTokenCallback
+                */
                 ssosdk.refreshToken(refreshToken, object : SSOSDK.RefreshTokenCallback {
+                    // Se debe sobre escribir la función processFinish para recibir respuesta del método refreshToken
+                    /*
+                    * success: bandera boolean que indica si fue exitosa o no la respuesta del método
+                    * data: Información del token actualizado, puede ser null
+                    */
                     override fun processFinish(success: Boolean, data: RefreshToken?) {
                         switchSpinner(false)
                         if(success) {

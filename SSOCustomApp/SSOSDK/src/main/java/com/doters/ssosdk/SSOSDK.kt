@@ -52,11 +52,11 @@ class SSOSDK constructor(scheme: String, url: String, apiUrl: String, language: 
     }
 
     interface IntrospectionCallback {
-        fun processFinish(success: Boolean, data: Introspection?)
+        fun processFinish(success: Boolean, data: IntrospectionData?)
     }
 
     interface RefreshTokenCallback {
-        fun processFinish(success: Boolean, data: RefreshToken?)
+        fun processFinish(success: Boolean, data: LoginData?)
     }
 
     // Metodo de SDK para login
@@ -109,10 +109,10 @@ class SSOSDK constructor(scheme: String, url: String, apiUrl: String, language: 
                 // Checking the results
                 if(response.isSuccessful) {
                     val responseBody: RefreshTokenRequest? = response.body()
-                    val refreshTokenResponse: RefreshToken = RefreshToken(responseBody?.access_token ?: "",
+                    val refreshTokenResponse: LoginData = LoginData(responseBody?.access_token ?: "",
                         responseBody?.expires_in ?: 0,
                         responseBody?.id_token ?: "", responseBody?.refresh_token ?: "", responseBody?.scope ?: "",
-                        responseBody?.token_type ?: ""
+                        responseBody?.token_type ?: "", "", "", ""
                     )
 
                     callback.processFinish(true, refreshTokenResponse)
@@ -144,16 +144,16 @@ class SSOSDK constructor(scheme: String, url: String, apiUrl: String, language: 
                 if(response.isSuccessful) {
                     val responseBody = response.body()
                     val subData: JSONObject = JSONObject(responseBody!!.sub)
-                    val subResponse: Sub = Sub(
+                    val subDataResponse: SubData = SubData(
                         subData.get("accountId") as String, (subData.get("user") ?: "") as String
                     )
-                    val tokenIntrospectionResponse: Introspection = Introspection(responseBody?.active ?: false,
-                        subResponse,
+                    val tokenIntrospectionDataResponse: IntrospectionData = IntrospectionData(responseBody?.active ?: false,
+                        subDataResponse,
                         responseBody?.client_id ?: "", responseBody?.exp ?: 0, responseBody?.iat ?: 0,
                         responseBody?.iss ?: "", responseBody?.scope ?: "",
                         responseBody?.token_type ?: ""
                     )
-                    callback.processFinish(true, tokenIntrospectionResponse)
+                    callback.processFinish(true, tokenIntrospectionDataResponse)
                 }else {
                     logger.error { "Request to verify token failed, " + (response.errorBody()?.string() ?: "without error info")}
                     callback.processFinish(false, null)

@@ -1,8 +1,8 @@
 package com.doters.ssosdk.models
 
-data class Introspection(
+data class IntrospectionData(
     val active: Boolean,
-    val sub: Sub,
+    val subData: SubData,
     val clientId: String,
     val exp: Long,
     val iat: Long,
@@ -10,5 +10,5 @@ data class Introspection(
     val scope: String,
     val tokenType: String
 ) {
-    constructor() : this(false, Sub(), "", 0, 0, "", "", "")
+    constructor() : this(false, SubData(), "", 0, 0, "", "", "")
 }
